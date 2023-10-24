@@ -7,11 +7,13 @@ from SAT import SAT
 
 
 class SATExtra(SAT):
-    def __init__(self, cnf_file):
+    def __init__(self, cnf_file, all_constants=True):
         super(SATExtra, self).__init__(cnf_file)
         self.constants = self.get_single_var_constants()
-        self.add_implied_constants()
+        if all_constants:
+            self.add_implied_constants()
         print("All constants", self.constants)
+        print(f'Total of {len(self.constants)} constants out of {len(self.variables) - 1} variables')
 
     # Find all the variables that are constants, only from constraints that
     #   have one variable in them.
@@ -31,25 +33,29 @@ class SATExtra(SAT):
         #   the best we can do
         fully_evaluated_clauses = []
 
+        # Create the queue of clauses related to the original constants to examine first
         for clause in self.clauses:
             for var in clause:
                 if var in self.constants or (-1 * var) in self.constants:
                     queue.append(clause)
-                    fully_evaluated_clauses.append(clause)
 
         while len(queue) > 0:
             clause = queue.popleft()
             non_constant_var = None
             two_non_constants = False
+            # Check clause to see if there is only one variable that is not a constant
             for var in clause:
                 if var not in self.constants and (-1 * var) not in self.constants:
+                    # If there are two undefined variables, we cannot reason about them
                     if non_constant_var:
                         two_non_constants = True
                         break
                     non_constant_var = var
 
+            # If there is only one undefined variable
             if not two_non_constants and non_constant_var:
                 self.constants.add(non_constant_var)
+                # Do not visit this clause again
                 fully_evaluated_clauses.append(clause)
                 for other_clause in self.clauses:
                     if non_constant_var in other_clause or (-1 * non_constant_var) in other_clause:
@@ -74,10 +80,11 @@ class SATExtra(SAT):
             steps += 1
             if steps > max_steps:
                 print(f'Maximum steps of {max_steps} taken in Walksat solver')
-                return None
+                return None, steps
 
-            if steps % 100 == 0:
-                print(steps, assignment)
+            # Uncomment this to see how the algorithm gets stuck at local minima
+            # if steps % 1000 == 0:
+            #     print(steps, assignment)
 
             # Get the random unsatisfied clause
             unsatisfied_clause = self.get_unsatisfied_clause(assignment)
@@ -96,7 +103,8 @@ class SATExtra(SAT):
             flip_var = self.get_best_flip(assignment, var_candidates)
             assignment[flip_var - 1] = not assignment[flip_var - 1]
 
-        return assignment
+        print("Total steps:", steps)
+        return assignment, steps
 
     # A modified version of getting the best variable to flip that ignores constants
     def get_best_flip(self, assignment, var_list=None):
