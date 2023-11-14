@@ -104,7 +104,8 @@ class SATExtra(SAT):
             assignment[flip_var - 1] = not assignment[flip_var - 1]
 
         print("Total steps:", steps)
-        return assignment, steps
+        # Uncomment if doing looped testing and want to calculate how many steps are taken on average
+        return assignment#, steps
 
     # A modified version of getting the best variable to flip that ignores constants
     def get_best_flip(self, assignment, var_list=None):

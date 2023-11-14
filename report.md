@@ -1,6 +1,7 @@
 # Boolean Satisfiability (SAT) Solving
 ### Ben Williams '25, October 2023
 
+
 ## Problem Representation
 
 We consider all SAT problems in conjunctive normal form (CNF). Our .cnf files have can have any variable names they want (be it `112` or `BLUE`), except that a variable being false is represented with a `-` in front. Each line in the .cnf is a clause, where spaces between variables represent "or" operators. 

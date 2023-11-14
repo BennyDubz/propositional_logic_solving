@@ -104,7 +104,8 @@ class SAT:
             assignment[flip_var - 1] = not assignment[flip_var - 1]
 
         print("Total steps:", steps)
-        return assignment, steps
+        # Uncomment if doing looped testing and want to calculate how many steps are taken on average
+        return assignment #, steps
 
     # Returns a random unsatisfied clause given an assignment
     def get_unsatisfied_clause(self, assignment):
